@@ -13,7 +13,7 @@ import models.personagem;
 public class rpgDAO {
 
 	
-	public void save (personagem personagem) {
+public void save (personagem personagem) {
 		String sql = "INSERT INTO personagem (nome,level,ataque,defesa,datacadastro) values (?,?,?,?,?)";
 
 		Connection con = null;
@@ -94,7 +94,7 @@ public List<personagem> getPersonagem(){
 	return personagens;
  }
 
-	public String batalhar(int idPersonagem1, int idPersonagem2) {
+public String batalhar(int idPersonagem1, int idPersonagem2) {
     String resultado = "";
 
     // buscar os personagens no banco de dados
@@ -135,18 +135,21 @@ public List<personagem> getPersonagem(){
             personagem2.setDefesa(rs.getInt("defesa"));
             personagem2.setDataCadastro(rs.getDate("datacadastro"));
         }
-
         // realizar a batalha
         
-        //Se o ataque for maior que a defesa, o com maior ataque ganha.
-        //Se o p1 ataque - p2 defesa for igual ao p2ataque- p2defesa a batalha será empate.
-        //Se a p1 defesa > p2 ataque, a p2 ganha.
-        
+   
         if (personagem1 == null || personagem2 == null) {
             resultado = "Não foi possível encontrar os personagens informados.";
         } else {
+        	//AtaquePersonagem1 = A1 - D2
+        	//AtaquePersonagem2 = A2 - D1
+  
             int ataquePersonagem1 = personagem1.getAtaque() - personagem2.getDefesa();
             int ataquePersonagem2 = personagem2.getAtaque() - personagem1.getDefesa();
+
+            //Se AtaquePersonagem1 > AtaquePersonagem2, então o personagem 1 vence.
+            //Se AtaquePersonagem1 < AtaquePersonagem2, então o personagem 2 vence.
+            //Se AtaquePersonagem1 = AtaquePersonagem2, então a batalha termina em empate.
 
             if (ataquePersonagem1 > ataquePersonagem2) {
                 resultado = "Personagem " + personagem1.getNome() + " venceu a batalha!";
@@ -177,6 +180,74 @@ public List<personagem> getPersonagem(){
 
     return resultado;
 }
+
+
+public void update(personagem personagem) {
+	String sql = "UPDATE personagem SET nome = ? , level = ?, ataque = ?, defesa = ?, datacadastro = ?"+
+			"WHERE id = ?";
+	Connection conn = null;
+	PreparedStatement pstm = null;
+	
+	try {
+		conn = conexaobd.createConnectionToMySQL();
+		
+		//Criar classe pra executar a query
+		pstm = conn.prepareStatement(sql);
+		
+		//Adicionar valores para a atualizaçao
+		
+		pstm.setString(1, personagem.getNome());
+		pstm.setInt(2, personagem.getLevel());
+		pstm.setInt(3, personagem.getAtaque());
+		pstm.setInt(4, personagem.getDefesa());
+		pstm.setDate(5, new Date(personagem.getDataCadastro().getTime()));
+		
+		//Qual o id do registro que deseja alterar
+		pstm.setInt(6,personagem.getId());
+		
+		//executar query
+		pstm.execute();
+		
+	}catch (Exception e) {
+			e.printStackTrace();
+	}finally {
+		try {
+			if(pstm!=null) {
+				pstm.close();
+			}
+			if(conn!=null) {
+				conn.close();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+public void deletePersonagem(int id) {
+    String sql = "DELETE FROM personagem WHERE id = ?";
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    try {
+        conn = conexaobd.createConnectionToMySQL();
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, id);
+        pstmt.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}	
 
 
 

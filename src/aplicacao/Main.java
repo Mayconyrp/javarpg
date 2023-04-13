@@ -6,15 +6,43 @@ import java.util.Scanner;
 import models.personagem;
 import rpgDAO.rpgDAO;
 
-
-
 public class Main {
 
     private static rpgDAO rpgDAO = new rpgDAO();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        if (autenticar()) {
+            menu();
+        }
+        System.out.println("Saindo...");
+    }
 
+    private static boolean autenticar() {
+        String login, senha;
+        boolean autenticado = false;
+
+        // laço de autenticação do usuário
+        do {
+            System.out.println("Digite o login: ");
+            login = scanner.nextLine();
+
+            System.out.println("Digite a senha: ");
+            senha = scanner.nextLine();
+
+            // verificando se o login e senha são válidos (pode ser feito de outras formas mais seguras)
+            if (login.equals("admin") && senha.equals("123")) {
+                autenticado = true;
+                break;
+            } else {
+                System.out.println("Login e/ou senha incorretos. Tente novamente.");
+            }
+        } while (true);
+
+        return autenticado;
+    }
+
+    private static void menu() {
         int opcao = 0;
 
         do {
@@ -22,7 +50,8 @@ public class Main {
             System.out.println("1 - Listar personagens");
             System.out.println("2 - Adicionar personagem");
             System.out.println("3 - Batalhar");
-
+            System.out.println("4 - Atualizar personagem");
+            System.out.println("5 - Deletar personagem");
             System.out.println("0 - Sair");
 
             opcao = scanner.nextInt();
@@ -38,8 +67,13 @@ public class Main {
                 case 3:
                     batalhar();
                     break;
+                case 4:
+                    atualizarPersonagem();
+                    break;
+                case 5:
+                    deletarPersonagem();
+                    break;
                 case 0:
-                    System.out.println("Saindo...");
                     break;
                 default:
                     System.out.println("Opção inválida!");
@@ -47,9 +81,7 @@ public class Main {
             }
 
         } while (opcao != 0);
-
     }
-
     private static void listarPersonagens() {
 
         System.out.println("Lista de personagens:");
@@ -97,7 +129,36 @@ public class Main {
     }
 
 
+    private static void atualizarPersonagem() {
+    	
+        personagem personagem = new personagem();
+        System.out.print("ID do Personagem a ser atualizado: ");
+        personagem.setId(scanner.nextInt());
+        System.out.print("Novo nome: ");
+        personagem.setNome(scanner.next());
+        System.out.print("Novo level: ");
+        personagem.setLevel(scanner.nextInt());
+        System.out.print("Novo ataque: ");
+        personagem.setAtaque(scanner.nextInt());
+        System.out.print("Nova defesa: ");
+        personagem.setDefesa(scanner.nextInt());
+
+        personagem.setDataCadastro(new Date());
+        rpgDAO.update(personagem);
+        System.out.println("Personagem atualizado com sucesso");
+    }
+    
+    private static void deletarPersonagem() {
+        System.out.print("ID do contato a ser deletado: ");
+        int id = scanner.nextInt();
+        rpgDAO.deletePersonagem(id);
+        System.out.println("Contato deletado com sucesso");
+    }
+
+
 }
+
+
 
 /*public class Main {
 	
